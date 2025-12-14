@@ -1,19 +1,34 @@
-clc; clear; close all;
+clc;
+clear;
+close all;
 
-nVar = 30;            % số biến theo chuẩn ZDT1
-VarMin = 0;          
-VarMax = 1;
+%Cấu hình bài toán
+CostFunction = @ZDT1;  % Gọi file ZDT1.m
+nVar = 30;             % Số biến
+VarMin = 0;            % Cận dưới
+VarMax = 1;            % Cận trên
 
-nPop = 50;            % số lượng sói
-MaxIt = 200;          % vòng lặp
+%Cấu hình thuật toán MOGWO
+MaxIt = 200;           % Số vòng lặp
+nPop = 100;            % Số lượng sói
+nArchive = 100;        % Dung lượng Archive
 
-disp('Running MOGWO on ZDT1 ...');
+%Chạy thuật toán
+fprintf('Đang chạy MOGWO cho bài toán ZDT1...\n');
+Archive = MOGWO(CostFunction, nVar, VarMin, VarMax, MaxIt, nPop, nArchive);
 
-pareto = MOGWO(@ZDT1, nVar, VarMin, VarMax, nPop, MaxIt);
+%Vẽ kết quả
+costs = vertcat(Archive.Cost);
 
-% Vẽ Pareto Front
 figure;
-plot(pareto(:,1), pareto(:,2), 'bo', 'MarkerSize', 6, 'MarkerFaceColor', 'b');
+plot(costs(:,1), costs(:,2), 'ro', 'MarkerFaceColor', 'r'); hold on;
+
+% Vẽ đường True PF (Lý thuyết) để so sánh
+x_true = linspace(0, 1, 100);
+y_true = 1 - sqrt(x_true);
+plot(x_true, y_true, 'b-', 'LineWidth', 2);
+
+title('Kết quả MOGWO - ZDT1');
 xlabel('f1'); ylabel('f2');
-title('Pareto Front - MOGWO on ZDT1');
+legend('MOGWO Archive', 'True PF');
 grid on;
